@@ -1,0 +1,2 @@
+# rubycal
+Rails for all!
