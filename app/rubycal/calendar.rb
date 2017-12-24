@@ -13,6 +13,7 @@ module RubyCal
     # Names were chose for hashes, as specifications cite multiple all-event methods
       # To simplify removing multiple of a hash
     # Arrays are used as buckets to allow quicker search/sort on the items
+    # Methods that simply modify return booleans for feedback
   
   # On the docket:
     # Inserted items should probably be inserted with some form of binary insert
@@ -21,7 +22,13 @@ module RubyCal
   
   DATE_COMPARER = Proc.new do |t1, t2|
     raise ArgumentError "Invalid Arguments" unless (t1.instance_of? Time) && (t2.instance_of? Time)
-    t1.day == t2.day && t1.month == t2.month &&t2.year == t2.year
+    t1.year == t2.year && t1.month == t2.month && t1.day == t2.day
+  end
+
+  WEEK_COMPARER = Proc.new do |t1, t2|
+    raise ArgumentError "Invalid Arguments" unless (t1.instance_of? Time) && (t2.instance_of? Time)
+    week = 60 * 60 * 24 * 7
+    t1 > t2 ? t1 < t2 + week : t2 < t1 + week
   end
 
   class Calendar
@@ -44,6 +51,7 @@ module RubyCal
         @events[event.name] = @events[event.name] ? @events[event.name] << event : [event]
         true
       rescue Exception => e
+        puts e
         false
       end
     end
@@ -61,7 +69,7 @@ module RubyCal
       result = {}
       @events.each do |name, bucket|
         temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, today) }
-        result[name] = temp
+        result[name] = temp if temp.length > 0
       end
       result
     end
@@ -69,25 +77,48 @@ module RubyCal
     # events_for_date(date) – Returns events that occur during the given date.
     public
     def events_for_date(date)
-      # @events.select do |name, bucket|
-      #   bucket.select { |event| event.start_time == Time.}
-      # end
+      result = {}
+      @events.each do |name, bucket|
+        temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, date) }
+        result[name] = temp if temp.length > 0
+      end
+      result
     end
 
     # events_for_this_week – Returns events that occur within the next 7 days.
     public
     def events_for_this_week
+      today = Time.now
+      result = {}
+      @events.each do |name, bucket|
+        temp = bucket.select { |event| WEEK_COMPARER.call(event.start_time, today) }
+        result[name] = temp if temp.length > 0
+      end
+      result
     end
 
     # update_events(name, params) – For all calendar events matching the given name, then update the event's attributes based on the given params.
     public
-    def update_events(name, *p)
+    def update_events(name, params)
+      begin
+        @events[name].each { |x| x.update_event(params) }
+        true
+      rescue Exception => e
+        puts e
+        false
+      end
     end
 
     # remove_events(name) – Removes calendar events with the given name.
     public
     def remove_events(name)
-      @events.delete(name) { "#{name} is not currently in the #{@name} calendar!" }
+      begin
+        @events.delete(name)
+        true
+      rescue Exception => e
+        puts e
+        false
+      end
     end
 
   end
