@@ -16,6 +16,7 @@ module RubyCal
     # expect p to be optional event params
     public
     def add_event(name, *p)
+      
     end
 
     # events_with_name(name) – Returns events matching the given name.
