@@ -1,3 +1,6 @@
+require 'active_support'
+require 'active_support/core_ext'
+
 module RubyCal
 
   # Requirements
@@ -14,6 +17,12 @@ module RubyCal
   # On the docket:
     # Inserted items should probably be inserted with some form of binary insert
     # Updating items will necessitate reordering the array to preserve order
+    # Specify which active_support modules i will need
+  
+  DATE_COMPARER = Proc.new do |t1, t2|
+    raise ArgumentError "Invalid Arguments" unless (t1.instance_of? Time) && (t2.instance_of? Time)
+    t1.day == t2.day && t1.month == t2.month &&t2.year == t2.year
+  end
 
   class Calendar
 
@@ -45,14 +54,24 @@ module RubyCal
       @events.select { |x, y| x == name }
     end
 
-    # events_for_date(date) – Returns events that occur during the given date.
-    public
-    def events_for_date(date)
-    end
-
     # events_for_today – Returns events that occur today.
     public
     def events_for_today
+      today = Time.now
+      result = {}
+      @events.each do |name, bucket|
+        temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, today) }
+        result[name] = temp
+      end
+      result
+    end
+
+    # events_for_date(date) – Returns events that occur during the given date.
+    public
+    def events_for_date(date)
+      # @events.select do |name, bucket|
+      #   bucket.select { |event| event.start_time == Time.}
+      # end
     end
 
     # events_for_this_week – Returns events that occur within the next 7 days.

@@ -50,4 +50,23 @@ class TestCalendar < Minitest::Test
     # Make sure we only update one array bucket
     assert_equal({ test_event2.name => [test_event2] }, @cal.events_with_name(test_event2.name))
   end
+
+  def test_cal_for_today
+    test_params1 = { name: 'test', start_time: Time.now }
+    test_event1 = RubyCal::Event.new(test_params1)
+    @cal.add_event(test_event1)
+    assert_equal({ test_event1.name => [test_event1] }, @cal.events_for_today)
+
+    test_params2 = { name: 'test', start_time: Time.now + 60 * 60 * 24 }
+    test_event2 = RubyCal::Event.new(test_params2)
+    @cal.add_event(test_event2)
+    # The only valid event is the first, the second should not exist in the returned hash
+    assert_equal({ test_event1.name => [test_event1] }, @cal.events_for_today)
+
+    # Fetch any result, even in different buckets
+    test_params3 = { name: 'test3', start_time: Time.now }
+    test_event3 = RubyCal::Event.new(test_params3)
+    @cal.add_event(test_event3)
+    assert_equal({ test_event1.name => [test_event1], test_event3.name => [test_event3] }, @cal.events_for_today)
+  end
 end
