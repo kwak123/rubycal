@@ -1,5 +1,20 @@
 module RubyCal
 
+  # Requirements
+    # Method requirements written above methods
+    # Must have a name
+  
+  # Implementation
+    # Done as per the requirements
+    # Failed attempts rescue with a false value
+    # Names were chose for hashes, as specifications cite multiple all-event methods
+      # To simplify removing multiple of a hash
+    # Arrays are used as buckets to allow quicker search/sort on the items
+  
+  # On the docket:
+    # Inserted items should probably be inserted with some form of binary insert
+    # Updating items will necessitate reordering the array to preserve order
+
   class Calendar
 
     attr_reader :name
@@ -15,8 +30,13 @@ module RubyCal
     # add_event(name, params) – Adds an event to the calendar.
     # expect p to be optional event params
     public
-    def add_event(name, *p)
-      
+    def add_event(event)
+      begin
+        @events[event.name] = @events[event.name] ? @events[event.name] << event : [event]
+        true
+      rescue Exception => e
+        false
+      end
     end
 
     # events_with_name(name) – Returns events matching the given name.
