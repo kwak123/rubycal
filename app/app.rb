@@ -3,7 +3,6 @@ require_relative 'rubycal/calendar'
 class App
 end
 
-
 $app = App.new
 
 loop do

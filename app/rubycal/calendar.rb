@@ -21,7 +21,7 @@ module RubyCal
     # events_with_name(name) – Returns events matching the given name.
     public 
     def events_with_name(name)
-      @events.select({ |x, y| x == name })
+      @events.select { |x, y| x == name }
     end
 
     # events_for_date(date) – Returns events that occur during the given date.
@@ -47,8 +47,8 @@ module RubyCal
     # remove_events(name) – Removes calendar events with the given name.
     public
     def remove_events(name)
-      @events.delete(name) { "#{name} is not currently in the #{@name} calendar!"
+      @events.delete(name) { "#{name} is not currently in the #{@name} calendar!" }
     end
-  end
 
+  end
 end

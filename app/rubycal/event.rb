@@ -1,4 +1,5 @@
 module RubyCal
+  
   class Event
     attr_accessor :name, :start_time, :end_time, :location
 
@@ -8,3 +9,6 @@ module RubyCal
       @end_time = end_time
       @location = location
     end
+  end
+
+end
