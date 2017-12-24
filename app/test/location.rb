@@ -6,8 +6,13 @@ class TestLocation < Minitest::Test
     @location = RubyCal::Location.new({ name: 'test' })
   end
 
+  def test_loc_exists
+    assert @location
+  end
+
   def test_loc_needs_name
     assert_raises { RubyCal::Location.new }
+    assert_raises { RubyCal::Location.new({ name: '' }) }
   end
 
   def test_loc_can_update
