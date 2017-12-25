@@ -102,25 +102,18 @@ module RubyCal
     # update_events(name, params) – For all calendar events matching the given name, then update the event's attributes based on the given params.
     public
     def update_events(name, params)
-      begin
-        @events[name].each { |x| x.update_event(params) }
-        true
-      rescue Exception => e
-        puts e
-        false
-      end
+      raise NameError unless @events[name]
+      @events[name].each { |x| x.update_event(params) }
+      @events[name].length
     end
 
     # remove_events(name) – Removes calendar events with the given name.
     public
     def remove_events(name)
-      begin
-        @events.delete(name)
-        true
-      rescue Exception => e
-        puts e
-        false
-      end
+      raise NameError unless @events[name]
+      prev_length = @events[name].length
+      @events.delete(name)
+      prev_length
     end
 
   end
