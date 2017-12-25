@@ -1,4 +1,7 @@
 require 'minitest/autorun'
+require 'active_support'
+require 'active_support/core_ext'
+
 require_relative '../rubycal/event'
 require_relative '../rubycal/location'
 
@@ -75,7 +78,10 @@ class TestEvent < MiniTest::Test
   end
 
   def test_event_raises_if_loses_end_and_all
+    test_params = @event.instance_values
     assert_raises { @event.update_event({ all_day: false }) }
+    # Event should remain unmodified
+    assert_equal(test_params, @event.instance_values)
 
     test_location = RubyCal::Location.new({ name: 'test' })
     test_params = {

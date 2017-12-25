@@ -1,3 +1,6 @@
+require 'active_support'
+require 'active_support/core_ext'
+
 module RubyCal
 
   # Requirements
@@ -31,10 +34,16 @@ module RubyCal
     public
     def update_event(params)
       verify_params(params)
+      test_vars = self.instance_values
+      params.each do |k, v|
+        test_vars[k.to_s] = v
+      end
+      
+      # Test params are valid first, to prevent modfying event
+      raise ArgumentError, "Need end_time or all_day" unless test_vars['all_day'] || test_vars['end_time']
       params.each do |k, v|
         self.instance_variable_set("@#{k}", v)
       end
-      raise ArgumentError, "Need end_time or all_day" unless @all_day || @end_time
     end
 
     private
