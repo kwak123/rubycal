@@ -35,6 +35,14 @@ module RubyCal
     end
 
     public
+    def get_cals
+      @calendars.reduce([]) do |memo, (k, v)|
+        memo << k
+        memo
+      end
+    end
+
+    public
     def add_event(params)
       raise RuntimeError if @calendar == nil
       @calendar.add_event(Event.new(params))

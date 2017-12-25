@@ -35,6 +35,16 @@ class TestRubyCal < MiniTest::Test
     @app.use_cal(test_name)
     assert_equal(test_name, @app.calendar.name)
   end
+
+  def test_app_get_cals
+    assert_equal([], @app.get_cals)
+    test_name = 'test'
+    test_name2 = 'test2'
+    @app.add_cal(test_name)
+    assert_equal([test_name], @app.get_cals)
+    @app.add_cal(test_name2)
+    assert_equal([test_name, test_name2], @app.get_cals)
+  end
   
   def test_app_add_event
     assert_raises { @app.add_event }
