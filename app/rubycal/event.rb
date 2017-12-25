@@ -14,14 +14,16 @@ module RubyCal
     # End time should not be before start time
 
   class Event
-    attr_accessor :name, :start_time, :end_time, :location
+    attr_accessor :name, :start_time, :all_day, :end_time, :location
 
     def initialize(params)
       raise ArgumentError, 'Name required' unless (params[:name].kind_of? String) && (params[:name].length > 0)
       raise ArgumentError, "Invalid start time, received #{params[:start_time]}" unless params[:start_time].kind_of? Time
       raise ArgumentError, "Invalid location" unless (params[:location] == nil) || (params[:location].instance_of? RubyCal::Location)
+      raise ArgumentError, "Need end_time or all_day" unless params[:all_day] || (params[:end_time] && (params[:end_time].kind_of? Time))
       @name = params[:name]
       @start_time = params[:start_time]
+      @all_day = params[:all_day] || false
       @end_time = params[:end_time]
       @location = params[:location]
     end
@@ -32,6 +34,7 @@ module RubyCal
       params.each do |k, v|
         self.instance_variable_set("@#{k}", v)
       end
+      raise ArgumentError, "Need end_time or all_day" unless @all_day || @end_time
     end
 
     private

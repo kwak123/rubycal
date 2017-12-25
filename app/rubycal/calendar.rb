@@ -39,6 +39,7 @@ module RubyCal
     attr_accessor :events
 
     def initialize(name)
+      raise ArgumentError unless (name.length > 0) && (name.kind_of? String)
       @name = name
       @events = {}
     end
@@ -57,9 +58,10 @@ module RubyCal
     end
 
     # events_with_name(name) – Returns events matching the given name.
+      # Returning array because name is the separating value
     public 
     def events_with_name(name)
-      @events.select { |x, y| x == name }
+      @events[name] || []
     end
 
     # events_for_today – Returns events that occur today.
