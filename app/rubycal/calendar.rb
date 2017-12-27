@@ -39,7 +39,7 @@ module RubyCal
     attr_accessor :events
 
     def initialize(name)
-      raise ArgumentError "Calendar name is missing" unless (name.length > 0) && (name.kind_of? String)
+      raise ArgumentError, "Calendar name is missing" unless (name.length > 0) && (name.kind_of? String)
       @name = name
       @events = {}
     end
@@ -48,13 +48,8 @@ module RubyCal
     # expect p to be optional event params
     public
     def add_event(event)
-      begin
-        @events[event.name] = @events[event.name] ? @events[event.name] << event : [event]
-        true
-      rescue Exception => e
-        puts e
-        false
-      end
+      raise ArgumentError, "add_event requires a RubyCal::Event object" unless event.instance_of? Event
+      @events[event.name] = @events[event.name] ? @events[event.name] << event : [event]
     end
 
     # events_with_name(name) – Returns events matching the given name.

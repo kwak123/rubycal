@@ -21,10 +21,10 @@ class TestCalendar < Minitest::Test
   end
 
   def test_cal_add_events
-    assert_equal(false, @cal.add_event({}))
+    assert_raises { @cal.add_event({}) }
     test_params = { name: 'test', start_time: Time.new(2018, 1, 2, 5, 30), all_day: true }
     test_event = RubyCal::Event.new(test_params)
-    assert_equal(true, @cal.add_event(test_event))
+    @cal.add_event(test_event)
 
     # Results should be an array
     assert_equal([test_event], @cal.events[test_event.name])
