@@ -19,7 +19,7 @@ module RubyCal
     attr_accessor :name, :address, :city, :state, :zip
 
     def initialize(params)
-      raise ArgumentError, 'Name required' unless (params[:name].kind_of? String) && (params[:name].length > 0)
+      raise ArgumentError, "Location requires name" unless (params[:name].kind_of? String) && (params[:name].length > 0)
       @name = params[:name]
       @address = params[:address]
       @city = params[:city]
@@ -30,6 +30,7 @@ module RubyCal
     # Raise error for poorly formatted params, or ignore?
     public
     def update_location(params)
+      raise ArgumentError, "Location requires name" unless (!params[:name]) || (params[:name].kind_of? String) && (params[:name].length > 0)
       params.each do |k, v|
         self.instance_variable_set("@#{k}", v)
       end

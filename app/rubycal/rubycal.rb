@@ -24,13 +24,13 @@ module RubyCal
 
     public
     def add_cal(name)
-      raise NameError if @calendars[name]
+      raise NameError, "No calendar by that name!" if @calendars[name]
       @calendars[name] = Calendar.new(name)
     end
 
     public
     def use_cal(name)
-      raise NameError unless @calendars[name]
+      raise NameError, "No calendar by that name!" unless @calendars[name]
       @calendar = @calendars[name]
     end
 
@@ -44,7 +44,7 @@ module RubyCal
 
     public
     def add_event(params)
-      raise RuntimeError if @calendar == nil
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
       params[:location] = Location.new(params[:location]) if params[:location]
       @calendar.add_event(Event.new(params))
       "Added #{params[:name]} to #{@calendar.name}"
@@ -52,13 +52,13 @@ module RubyCal
 
     public
     def get_events_with_name(name)
-      raise RuntimeError unless @calendar
+      raise RuntimeError, "Set a calendar first!" unless @calendar
       format_hash_array(@calendar.events_with_name(name))
     end
 
     public
     def get_events_for_today
-      raise RuntimeError unless @calendar
+      raise RuntimeError, "Set a calendar first!" unless @calendar
       @calendar.events_for_today.reduce({}) do |memo, (name, events)|
         memo[name.to_sym] = format_hash_array(events)
         memo
@@ -67,7 +67,7 @@ module RubyCal
 
     public
     def get_events_for_date(date)
-      raise RuntimeError unless @calendar
+      raise RuntimeError, "Set a calendar first!" unless @calendar
       @calendar.events_for_date(date).reduce({}) do |memo, (name, events)|
         memo[name.to_sym] = format_hash_array(events)
         memo
@@ -76,7 +76,7 @@ module RubyCal
 
     public
     def get_events_for_this_week
-      raise RuntimeError unless @calendar
+      raise RuntimeError, "Set a calendar first!" unless @calendar
       @calendar.events_for_this_week.reduce({}) do |memo, (name, events)|
         memo[name.to_sym] = format_hash_array(events)
         memo
@@ -85,13 +85,13 @@ module RubyCal
 
     public
     def update_events(name, params)
-      raise RuntimeError unless @calendar
+      raise RuntimeError, "Set a calendar first!" unless @calendar
       @calendar.update_events(name, params)
     end
 
     public
     def remove_events(name)
-      raise RuntimeError unless @calendar
+      raise RuntimeError, "Set a calendar first!" unless @calendar
       @calendar.remove_events(name)
     end
 

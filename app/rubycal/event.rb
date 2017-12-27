@@ -20,7 +20,7 @@ module RubyCal
     attr_accessor :name, :start_time, :all_day, :end_time, :location
 
     def initialize(params)
-      raise ArgumentError, 'Name required' unless (params[:name].kind_of? String) && (params[:name].length > 0)
+      raise ArgumentError, "Name required" unless (params[:name].kind_of? String) && (params[:name].length > 0)
       raise ArgumentError, "Invalid start time, received #{params[:start_time]}" unless params[:start_time].kind_of? Time
       raise ArgumentError, "Invalid location" unless (params[:location] == nil) || (params[:location].instance_of? RubyCal::Location)
       raise ArgumentError, "Need end_time or all_day" unless params[:all_day] || (params[:end_time] && (params[:end_time].kind_of? Time))

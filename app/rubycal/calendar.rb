@@ -21,12 +21,12 @@ module RubyCal
     # Specify which active_support modules i will need
   
   DATE_COMPARER = Proc.new do |t1, t2|
-    raise ArgumentError "Invalid Arguments" unless (t1.instance_of? Time) && (t2.instance_of? Time)
+    raise ArgumentError, "Invalid Time" unless (t1.instance_of? Time) && (t2.instance_of? Time)
     t1.year == t2.year && t1.month == t2.month && t1.day == t2.day
   end
 
   WEEK_COMPARER = Proc.new do |t1, t2|
-    raise ArgumentError "Invalid Arguments" unless (t1.instance_of? Time) && (t2.instance_of? Time)
+    raise ArgumentError, "Invalid Time" unless (t1.instance_of? Time) && (t2.instance_of? Time)
     week = 60 * 60 * 24 * 7
     t1 > t2 ? t1 < t2 + week : t2 < t1 + week
   end
@@ -39,7 +39,7 @@ module RubyCal
     attr_accessor :events
 
     def initialize(name)
-      raise ArgumentError unless (name.length > 0) && (name.kind_of? String)
+      raise ArgumentError "Calendar name is missing" unless (name.length > 0) && (name.kind_of? String)
       @name = name
       @events = {}
     end
@@ -102,7 +102,7 @@ module RubyCal
     # update_events(name, params) – For all calendar events matching the given name, then update the event's attributes based on the given params.
     public
     def update_events(name, params)
-      raise NameError unless @events[name]
+      raise NameError 'No event(s) by that name' unless @events[name]
       @events[name].each { |x| x.update_event(params) }
       @events[name].length
     end
@@ -110,7 +110,7 @@ module RubyCal
     # remove_events(name) – Removes calendar events with the given name.
     public
     def remove_events(name)
-      raise NameError unless @events[name]
+      raise NameError 'No event(s) by that name' unless @events[name]
       prev_length = @events[name].length
       @events.delete(name)
       prev_length

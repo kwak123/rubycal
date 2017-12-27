@@ -11,8 +11,8 @@ class TestLocation < Minitest::Test
   end
 
   def test_loc_needs_name
-    # assert_raises { RubyCal::Location.new }
-    # assert_raises { RubyCal::Location.new({ name: '' }) }
+    assert_raises { RubyCal::Location.new }
+    assert_raises { RubyCal::Location.new({ name: '' }) }
   end
 
   def test_loc_can_update
@@ -31,6 +31,7 @@ class TestLocation < Minitest::Test
     assert_equal(@location.city, test_params[:city])
     assert_equal(@location.state, test_params[:state])
     assert_equal(@location.zip, test_params[:zip])
+    assert_raises { @location.update_location({ name: '' }) }
   end
 
 end
