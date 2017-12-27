@@ -11,12 +11,12 @@ module RubyCal
     # None
 
   # Implementation
-    # App will be responsible for RubyCall API
+    # App will be responsible for RubyCal API
     # App will also format expose friendlier responses to get requests
 
   class App
 
-    attr_accessor :calendars, :calendar
+    attr_reader :calendars, :calendar
 
     def initialize
       @calendars = {}
@@ -48,6 +48,15 @@ module RubyCal
       params[:location] = Location.new(params[:location]) if params[:location]
       @calendar.add_event(Event.new(params))
       "Added #{params[:name]} to #{@calendar.name}"
+    end
+
+    public
+    def get_events
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
+      @calendar.events.reduce({}) do |memo, (name, events)| 
+        memo[name.to_sym] = format_hash_array(events)
+        memo
+      end
     end
 
     public

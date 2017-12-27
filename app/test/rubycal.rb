@@ -79,8 +79,13 @@ class TestRubyCal < MiniTest::Test
     assert_instance_of(RubyCal::Location, @app.calendar.events_with_name(test_name)[0].location)
   end
 
+  def test_app_events
+    assert_raises { @app.get_events }
+    test_name = 'test'
+  end
+
   def test_app_events_with_name
-    assert_raises { @app.get_event }
+    assert_raises { @app.get_events_with_name }
     test_name = 'test'
     test_arr = [{ name: test_name, start_time: Time.now, all_day: true }, { name: test_name, start_time: Time.now, end_time: Time.now + 60 }]
     test_expected = test_arr.map do |x|
