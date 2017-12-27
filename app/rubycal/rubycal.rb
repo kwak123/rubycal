@@ -45,6 +45,7 @@ module RubyCal
     public
     def add_event(params)
       raise RuntimeError if @calendar == nil
+      params[:location] = Location.new(params[:location]) if params[:location]
       @calendar.add_event(Event.new(params))
       "Added #{params[:name]} to #{@calendar.name}"
     end
@@ -102,9 +103,11 @@ module RubyCal
     end
 
     private
-    def format_hash(hash)
+    def format_hash(hash, is_loc = false)
       hash.reduce({}) do |memo, (k, v)|
-        memo[k.to_sym] = v if (k != 'name' && v)
+        if (is_loc ? v : k != 'name' && v)
+          memo[k.to_sym] = v.instance_of?(Location) ? format_hash(v.instance_values, true) : v
+        end
         memo
       end
     end

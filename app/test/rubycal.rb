@@ -68,6 +68,17 @@ class TestRubyCal < MiniTest::Test
     assert_equal(1, @app.calendar.events_with_name(test_params3[:name]).length)
   end
 
+  def test_app_add_event_with_loc
+    test_name = 'test'
+    test_date = Time.now
+    test_loc_params = { name: test_name }
+    test_params = { name: test_name, start_time: test_date, all_day: true, location: test_loc_params }
+    @app.add_cal(test_name)
+    @app.use_cal(test_name)
+    @app.add_event(test_params)
+    assert_instance_of(RubyCal::Location, @app.calendar.events_with_name(test_name)[0].location)
+  end
+
   def test_app_events_with_name
     assert_raises { @app.get_event }
     test_name = 'test'
@@ -156,6 +167,18 @@ class TestRubyCal < MiniTest::Test
 
     @app.remove_events(test_name)
     assert_equal([], @app.get_events_with_name(test_name))
+  end
+
+  def test_app_loc_formatting
+    test_name = 'test'
+    test_date = Time.now
+    test_loc_params = { name: test_name }
+    test_params = { name: test_name, start_time: test_date, all_day: true, location: test_loc_params }
+    test_expected = { test_name.to_sym => [{ start_time: test_date, all_day: true, location: test_loc_params }] }
+    @app.add_cal(test_name)
+    @app.use_cal(test_name)
+    @app.add_event(test_params)
+    assert_equal(test_expected, @app.get_events_for_date(test_date))
   end
   
 end
