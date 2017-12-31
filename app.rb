@@ -30,7 +30,7 @@ $search_options = lambda{
 $search_helper = lambda { |param|
   case param
     when "all"
-      break $app.get_events.each &$events_parser
+      $app.get_events.each &$events_parser
 
     when "name"
       puts "\nEvent name?"
@@ -38,15 +38,10 @@ $search_helper = lambda { |param|
       $app.get_events.each { |name, events| puts "  #{name}" }
       param = gets.chomp
       break if param == '-cancel'
-      puts
-      temp = $app.get_events_with_name(param)
-      puts "\n#{param}"
-      break temp.each &$event_parser
+      $events_parser.call(param, $app.get_events_with_name(param))
 
     when "today"
-      temp = $app.get_events_for_today
-      raise "No events for today" unless temp.length > 0
-      break temp.each &$events_parser
+      $app.get_events_for_today.each &$events_parser
 
     when "date"
       puts "\nWhat's the date?"
@@ -54,12 +49,10 @@ $search_helper = lambda { |param|
       break if param == '-cancel'
       date = Chronic.parse(param)
       raise "Couldn't parse that date" if date == nil
-      temp = $app.get_events_for_date(date)
-      raise "No events found for #{date.strftime('%b %e, %Y')}" unless temp.length > 0
-      break temp.each &$events_parser
+      $app.get_events_for_date(date).each &$events_parser
 
     when "week"
-      break $app.get_events_for_this_week.each &$events_parser
+      $app.get_events_for_this_week.each &$events_parser
 
     else
       puts "#{param} is not a valid option!"
@@ -246,7 +239,7 @@ loop do
               $search_options.call
               param = gets.chomp
               break if param == '-cancel'
-              $search_helper.call(param)
+              break $search_helper.call(param)
             rescue => exception
               break puts exception
             end
@@ -262,7 +255,6 @@ loop do
         raise "Set a calendar first!" unless $app.calendar
 
         loop do
-
           puts "\nWhich event would you like to update? (name)"
           puts "Available events for #{$app.calendar.name}:"
           $app.get_events.each { |name, events| puts "  #{name}"}
