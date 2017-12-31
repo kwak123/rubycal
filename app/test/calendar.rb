@@ -140,10 +140,27 @@ class TestCalendar < Minitest::Test
     test_update_params = { start_time: test_update }
 
     test_params1 = { name: 'test', start_time: test_date, all_day: true }
+    test_expected = { name: 'test', start_time: test_update, all_day: true }
     test_event1 = RubyCal::Event.new(test_params1)
     @cal.add_event(test_event1)
     @cal.update_events(test_event1.name, test_update_params)
-    assert_equal(test_update, @cal.events_with_name(test_event1.name)[0].start_time)
+    assert_equal(test_expected, @cal.events_with_name(test_event1.name)[0].instance_values.symbolize_keys.select { |k, v| v })
+
+    test_update_params2 = { location: { address: '8545 Merion Drive' } }
+    assert_raises { @cal.update_events(test_event1.name, test_update_params2) }
+    test_update_params2[:location] = RubyCal::Location.new({ name: 'test', address: '8545 Merion Drive' })
+    @cal.update_events(test_event1.name, test_update_params2)
+    assert_equal(test_update_params2[:location], @cal.events_with_name(test_event1.name)[0].location)
+
+    # Check updating name will update calendar events object with deep dup
+    test_params2 = { name: 'test1', start_time: test_date, all_day: true }
+    test_update_name = { name: 'test2' }
+    test_event2 = RubyCal::Event.new(test_params2)
+    @cal.add_event(test_event2)
+    @cal.update_events(test_params2[:name], test_update_name)
+    assert_raises { @cal.events_with_name(test_params2[:name]) }
+    assert_includes(@cal.events, test_update_name[:name])
+    refute_includes(@cal.events, test_params2[:name])
   end
 
   def test_cal_remove

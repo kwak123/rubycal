@@ -81,7 +81,7 @@ module RubyCal
         temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, date) }
         result[name] = temp if temp.length > 0
       end
-      raise "No events for that date" unless result.length > 0
+      raise "No events found for #{date.strftime('%b, %-d, %Y')}" unless result.length > 0
       result
     end
 
@@ -102,6 +102,12 @@ module RubyCal
     public
     def update_events(name, params)
       raise NameError, 'No event(s) by that name' unless @events[name]
+      if params[:name]
+        raise NameError, 'Event already exists with that name!' if @events[params[:name]]
+        @events[params[:name]] = @events[name].deep_dup
+        @events.delete(name)
+        name = params[:name]
+      end
       @events[name].each { |x| x.update_event(params) }
       @events[name].length
     end
