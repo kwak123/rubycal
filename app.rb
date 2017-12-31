@@ -6,33 +6,31 @@ $app = RubyCal::App.new
 $init = false
 
 $commands = lambda {
-  puts "\n(Any parameter prefixed with a ? is optional)"
-  puts "  start    -   Add a new calendar"
-  puts "  use      -   Switches to the desired calendar"
-  puts "  cal      -   Returns all available calendars"
-  puts "  add      -   Start up a command chain for adding a new event"
-  puts "  get      -   Fetches all events, by specific params if desired."
-  puts "  update   -   Start up a command chain for updating events"
-  puts "  remove   -   Removes any events matching the event name"
-  puts "  -cancel  -   Use at any time to back out of the current chain"
-  puts "  -l       -   To view these commands again"
+  puts "  start    -  Add a new calendar"
+  puts "  use      -  Switches to the desired calendar"
+  puts "  cal      -  Returns all available calendars"
+  puts "  add      -  Start up a command chain for adding a new event"
+  puts "  get      -  Fetches all events, by specific params if desired."
+  puts "  update   -  Start up a command chain for updating events"
+  puts "  remove   -  Removes any events matching the event name"
+  puts "  -cancel  -  Use at any time to back out of the current chain"
+  puts "  -l       -  To view these commands again"
 }
 
 $search_options = lambda{
   puts "\nChoose an option to search by:"
-  puts "  all    -   all events"
-  puts "  name   -   by name"
-  puts "  today  -   by today"
-  puts "  date   -   by date"
-  puts "  week   -   within the next week"
+  puts "  all      -  all events"
+  puts "  name     -  by name"
+  puts "  today    -  by today"
+  puts "  date     -  by date"
+  puts "  week     -  within the next week"
+  puts "  -cancel  -  return to main menu"
 }
 
 $search_helper = lambda { |param|
   case param
     when "all"
-      temp = $app.get_events
-      raise "No events added yet!" unless temp.length > 0
-      break temp.each &$events_parser
+      break $app.get_events.each &$events_parser
 
     when "name"
       puts "\nEvent name?"
@@ -61,9 +59,7 @@ $search_helper = lambda { |param|
       break temp.each &$events_parser
 
     when "week"
-      temp = $app.get_events_for_this_week
-      raise "No events for this week" unless temp.length > 0
-      break temp.each &$events_parser
+      break $app.get_events_for_this_week.each &$events_parser
 
     else
       puts "#{param} is not a valid option!"
@@ -71,7 +67,7 @@ $search_helper = lambda { |param|
 }
 
 $events_parser = lambda { |name, events|
-  puts "#{name}"
+  puts "\n# #{name} #"
   puts "--------------------"
   events.each &$event_parser
   puts
@@ -87,8 +83,8 @@ $address_parser = Proc.new { |new_address, location = {}|
   location
 }
 
-$event_parser = Proc.new { |event|
-  event.each do |k, v|
+$event_parser = Proc.new { |param|
+  param.each do |k, v|
     if v.instance_of? Time
       puts " -> #{$key_formatter.call(k)}: #{v.strftime("%b %e, %Y at %I:%M %p")}"
     elsif k == :location
@@ -97,6 +93,7 @@ $event_parser = Proc.new { |event|
       puts " -> #{$key_formatter.call(k)}: #{v}"
     end
   end
+  puts"\n  /*----------*/"
 }
 
 $key_formatter = lambda { |k|
@@ -251,7 +248,7 @@ loop do
               break if param == '-cancel'
               $search_helper.call(param)
             rescue => exception
-              puts exception
+              break puts exception
             end
           end
         end

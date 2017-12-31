@@ -53,6 +53,7 @@ module RubyCal
     public
     def get_events
       raise RuntimeError, "Set a calendar first!" if @calendar == nil
+      raise "No events added yet!" unless @calendar.events.length > 0
       @calendar.events.reduce({}) do |memo, (name, events)| 
         memo[name.to_sym] = format_hash_array(events)
         memo
