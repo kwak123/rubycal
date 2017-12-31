@@ -9,6 +9,7 @@ gem "sqlite3"
 gem "minitest"
 gem "activesupport"
 gem "StreetAddress"
+gem "chronic"
 
 # Recommended bundle exec commands
 # ruby -Ilib:test test.rb -v
