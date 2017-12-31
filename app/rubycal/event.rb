@@ -24,7 +24,7 @@ module RubyCal
       raise ArgumentError, "Invalid start time, received #{params[:start_time]}" unless params[:start_time].kind_of? Time
       raise ArgumentError, "Invalid location" unless (params[:location] == nil) || (params[:location].instance_of? RubyCal::Location)
       raise ArgumentError, "Need end_time or all_day" unless params[:all_day] || (params[:end_time] && (params[:end_time].kind_of? Time))
-      raise ArgumentError, "Event starts after supposed end" unless (params[:all_day]) || (params[:start_time] < params[:end_time])
+      raise ArgumentError, "Event starts after end" unless params[:all_day] || (params[:start_time] <= params[:end_time])
       @name = params[:name]
       @start_time = params[:start_time]
       @all_day = params[:all_day] || false
@@ -42,6 +42,7 @@ module RubyCal
       
       # Test params are valid first, to prevent modfying event
       raise ArgumentError, "Need end_time or all_day" unless test_vars['all_day'] || test_vars['end_time']
+      raise ArgumentError, "Event starts after end" unless test_vars['all_day'] || (test_vars['start_time'] <= test_vars['end_time'])
       params.each do |k, v|
         self.instance_variable_set("@#{k}", v)
       end
