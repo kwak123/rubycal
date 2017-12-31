@@ -12,6 +12,7 @@ gem "StreetAddress"
 gem "chronic"
 gem "colorize"
 gem "simplecov"
+gem "rake"
 
 # Recommended bundle exec commands, should you choose
 # ruby -Ilib:test test.rb -v
