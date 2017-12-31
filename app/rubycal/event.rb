@@ -55,7 +55,7 @@ module RubyCal
           when :start_time
             raise ArgumentError, "Invalid start time, received #{params[:start_time]}" unless params[:start_time].kind_of? Time
           when :end_time
-            raise ArgumentError, "Invalid end time, received #{params[:end_time]}" unless params[:start_time].kind_of? Time
+            raise ArgumentError, "Invalid end time, received #{params[:end_time]}" unless params[:end_time].kind_of? Time
           when :location
             raise ArgumentError, "Invalid location" unless params[:location].instance_of? RubyCal::Location
         end

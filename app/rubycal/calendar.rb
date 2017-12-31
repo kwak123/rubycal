@@ -81,7 +81,7 @@ module RubyCal
         temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, date) }
         result[name] = temp if temp.length > 0
       end
-      raise "No events found for #{date.strftime('%b, %e, %Y')}" unless result.length > 0
+      raise "No events found for #{date.strftime('%b, %-d, %Y')}" unless result.length > 0
       result
     end
 
