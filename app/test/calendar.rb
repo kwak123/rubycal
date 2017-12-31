@@ -31,8 +31,7 @@ class TestCalendar < Minitest::Test
   end
 
   def test_cal_events_with_name
-    # Return an empty hash
-    assert_equal([], @cal.events_with_name('test'))
+    assert_raises { @cal.events_with_name('test') }
 
     # Return a hash with an array containing one event
     test_params1 = { name: 'test', start_time: Time.new(2018, 1, 2, 5, 30), all_day: true }
@@ -60,8 +59,8 @@ class TestCalendar < Minitest::Test
     test_params1 = { name: 'test', start_time: Time.now + 60 * 60 * 24, all_day: true }
     test_event1 = RubyCal::Event.new(test_params1)
     @cal.add_event(test_event1)
-    # Return empty hash if nothing matches
-    assert_equal({}, @cal.events_for_today)
+    # Raise if nothing matches
+    assert_raises { @cal.events_for_today }
 
     test_params2 = { name: 'test', start_time: Time.now, all_day: true }
     test_event2 = RubyCal::Event.new(test_params2)
@@ -87,8 +86,8 @@ class TestCalendar < Minitest::Test
     test_params1 = { name: 'test', start_time: Time.now, all_day: true }
     test_event1 = RubyCal::Event.new(test_params1)
     @cal.add_event(test_event1)
-    # Return empty hash if nothing matches
-    assert_equal({}, @cal.events_for_date(test_date))
+    # Raise if nothing matches
+    assert_raises{ @cal.events_for_date(test_date) }
 
     test_params2 = { name: 'test', start_time: Time.now + 60 * 60 * 24, all_day: true }
     test_event2 = RubyCal::Event.new(test_params2)
@@ -114,8 +113,8 @@ class TestCalendar < Minitest::Test
     test_params1 = { name: 'test', start_time: test_date, all_day: true }
     test_event1 = RubyCal::Event.new(test_params1)
     @cal.add_event(test_event1)
-    # Return empty hash if nothing matches
-    assert_equal({}, @cal.events_for_this_week)
+    # Raise if nothing matches
+    assert_raises { @cal.events_for_this_week }
 
     test_params2 = { name: 'test2', start_time: Time.now, all_day: true }
     test_event2 = RubyCal::Event.new(test_params2)
@@ -154,8 +153,9 @@ class TestCalendar < Minitest::Test
     # Add first
     assert_equal([test_event1], @cal.events_with_name(test_event1.name))
     
-    @cal.remove_events(test_event1.name)
-    assert_equal([], @cal.events_with_name(test_event1.name))
+    temp = @cal.remove_events(test_event1.name)
+    assert_equal(1, temp)
+    assert_raises { @cal.events_with_name(test_event1.name) }
   end
 
 end
