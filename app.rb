@@ -172,7 +172,7 @@ loop do
 
           if wants_loc == "y" || wants_loc == "yes"
             location = {}
-            puts "What's the place called?"
+            puts "What's the location called?"
             location[:name] = gets.chomp
             puts "Location address?"
             address = StreetAddress::US.parse(gets.chomp)
@@ -257,7 +257,7 @@ loop do
           $app.get_events.each { |name, events| puts "  #{name}"}
 
           name = gets.chomp
-          raise "No event by that name" unless $app.get_events.has_key? name
+          raise "No event by that name" unless $app.get_events.has_key? name.to_sym
           break if name == '-cancel'
 
           update_params = {}
@@ -270,7 +270,7 @@ loop do
           puts "New start time? ('-no' if the same)"
           update_start_time = gets.chomp
           break if update_start_time == '-cancel'
-          unless update_start_Time == '-no'
+          unless update_start_time == '-no'
             update_start_time = Chronic.parse(update_start_time)
             raise "Couldn't parse that start time" if update_start_time == nil
             update_params[:start_time] = update_start_time
@@ -281,28 +281,29 @@ loop do
           break if update_end_time == '-cancel'
           unless update_end_time == '-no'
             if update_end_time == 'all-day'
-              update_params[:end_time] == nil
-              update_params[:all_day] == true
+              update_params[:end_time] = nil
+              update_params[:all_day] = true
             else
               update_end_time = Chronic.parse(update_end_time)
               raise "Couldn't parse that end time" if update_end_time == nil
-              update_params[:end_time] == update_end_time
-              update_params[:all_day] == false
+              update_params[:end_time] = update_end_time
+              update_params[:all_day] = false
             end
           end
 
           location = {}
           puts "New location name? ('-no' if the same)"
           update_loc_name = gets.chomp
-          break if update_loc_name = '-cancel'
+          break if update_loc_name == '-cancel'
           unless update_loc_name == '-no'
             location[:name] = update_loc_name
           end
 
           puts "New location address? ('-no' if the same)"
           update_loc_address = gets.chomp
-          unless update_loc_name == 'no'
-            address = StreetAddress::US.parse(gets.chomp)
+          break if update_loc_address == '-cancel'
+          unless update_loc_address == '-no'
+            address = StreetAddress::US.parse(update_loc_address)
             raise "Couldn't parse that address" if address == nil
             location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
             location[:city] = address.city
@@ -310,11 +311,13 @@ loop do
             location[:zip] = address.postal_code
           end
 
+          update_params[:location] = location
+
           $app.update_events(name, update_params)
           break puts "Successfully updated #{name} in #{$app.calendar.name}"
         end
       rescue => exception
-        puts exception.message
+        puts exception
       end
 
     when "remove"
