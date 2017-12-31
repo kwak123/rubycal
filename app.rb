@@ -1,7 +1,10 @@
-require_relative "app/rubycal/rubycal"
+require 'active_support'
+require 'active_support/core_ext'
 require "chronic"
 require "street_address"
 require "colorize"
+
+require_relative "app/rubycal/rubycal"
 
 $app = RubyCal::App.new
 $init = false
@@ -64,7 +67,7 @@ $search_helper = lambda { |param|
 $update_helper = lambda {
   update_params = {}
 
-  puts "New name? ('-no' if the same)"
+  puts "\nNew name? ('-no' if the same)"
   update_name = gets.chomp
   break if update_name == "-cancel"
   update_params[:name] = update_name unless update_name == "-no"
@@ -116,11 +119,30 @@ $events_parser = lambda { |name, events|
 
 $address_parser = lambda { |new_address, location = {}|
   address = StreetAddress::US.parse(new_address)
-  raise "Couldn't parse that address" if address == nil
-  location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
-  location[:city] = address.city
-  location[:state] = address.state
-  location[:zip] = address.postal_code
+  if address == nil
+    puts "Couldn't parse that address".colorize(:red)
+    puts "Would you like to input it manually? (y/n)"
+    manual_input = gets.chomp
+    if manual_input == 'y'
+      puts "Location street? ('-no' if no street desired)"
+      street = gets.chomp
+      location[:address] = street.titleize unless street == '-no'
+      puts "Location city? ('-no' if no city desired)"
+      city = gets.chomp
+      location[:city] = city.titleize unless city == '-no'
+      puts "Location state? ('-no' if no state desired)"
+      state = gets.chomp
+      location[:state] = state.upcase unless state == '-no'
+      puts "Location zip? ('-no' if no zip desired)"
+      zip = gets.chomp
+      location[:zip] = zip unless zip == '-no'
+    end
+  else
+    location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
+    location[:city] = address.city
+    location[:state] = address.state
+    location[:zip] = address.postal_code
+  end
   location
 }
 
