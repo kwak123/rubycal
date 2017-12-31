@@ -1,4 +1,7 @@
 require 'minitest/autorun'
+require 'active_support'
+require 'active_support/core_ext'
+
 require_relative '../rubycal/rubycal'
 
 class TestRubyCal < MiniTest::Test
@@ -158,6 +161,22 @@ class TestRubyCal < MiniTest::Test
 
     @app.update_events(test_name, { start_time: test_new_date })
     assert_equal(test_expected, @app.get_events_for_date(test_new_date))
+  end
+
+  def test_app_update_event_loc
+    test_name = 'test'
+    test_loc_name = 'Test Suite'
+    test_loc_update = { address: '123 Tester Road', city: 'New York', state: 'NY', zip: '10016' }
+    test_expected = { name: test_loc_name, address: '123 Tester Road', city: 'New York', state: 'NY', zip: '10016' }
+
+    test_loc_init = { name: test_loc_name }
+    test_event_params = { name: test_name, start_time: Time.now, all_day: true, location: test_loc_init }
+    
+    @app.add_cal(test_name)
+    @app.use_cal(test_name)
+    @app.add_event(test_event_params)
+    @app.update_events(test_name, { location: test_loc_update })
+    assert_equal(test_expected, @app.get_events_with_name(test_name)[0][:location])
   end
 
   def test_app_remove_events
