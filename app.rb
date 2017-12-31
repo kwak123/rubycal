@@ -116,11 +116,30 @@ $events_parser = lambda { |name, events|
 
 $address_parser = lambda { |new_address, location = {}|
   address = StreetAddress::US.parse(new_address)
-  raise "Couldn't parse that address" if address == nil
-  location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
-  location[:city] = address.city
-  location[:state] = address.state
-  location[:zip] = address.postal_code
+  if address == nil
+    puts "Couldn't parse that address".colorize(:red)
+    puts "Would you like to input it manually? (y/n)"
+    manual_input = gets.chomp
+    if manual_input == 'y'
+      puts "Location street? ('-no' if no street desired)"
+      street = gets.chomp
+      location[:street] = street unless street == '-no'
+      puts "Location city? ('-no' if no city desired)"
+      city = gets.chomp
+      location[:city] = city unless city == '-no'
+      puts "Location state? ('-no' if no state desired)"
+      state = gets.chomp
+      location[:state] = state unless state == '-no'
+      puts "Location zip? ('-no' if no zip desired)"
+      zip = gets.chomp
+      location[:zip] = zip unless zip == '-no'
+    end
+  else
+    location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
+    location[:city] = address.city
+    location[:state] = address.state
+    location[:zip] = address.postal_code
+  end
   location
 }
 
