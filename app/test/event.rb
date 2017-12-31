@@ -1,9 +1,4 @@
-require 'minitest/autorun'
-require 'active_support'
-require 'active_support/core_ext'
-
-require_relative '../rubycal/event'
-require_relative '../rubycal/location'
+require_relative 'test_helper'
 
 class TestEvent < MiniTest::Test
 

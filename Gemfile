@@ -11,6 +11,7 @@ gem "activesupport"
 gem "StreetAddress"
 gem "chronic"
 gem "colorize"
+gem "simplecov"
 
-# Recommended bundle exec commands
+# Recommended bundle exec commands, should you choose
 # ruby -Ilib:test test.rb -v

@@ -10,9 +10,16 @@ GEM
     chronic (0.10.2)
     colorize (0.8.1)
     concurrent-ruby (1.0.5)
+    docile (1.1.5)
     i18n (0.9.1)
       concurrent-ruby (~> 1.0)
+    json (2.0.4)
     minitest (5.10.1)
+    simplecov (0.15.1)
+      docile (~> 1.1.0)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.2)
     thread_safe (0.3.6)
     tzinfo (1.2.4)
       thread_safe (~> 0.1)
@@ -26,6 +33,7 @@ DEPENDENCIES
   chronic
   colorize
   minitest
+  simplecov
 
 BUNDLED WITH
    1.16.1

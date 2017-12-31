@@ -1,8 +1,4 @@
-require 'minitest/autorun'
-require 'active_support'
-require 'active_support/core_ext'
-
-require_relative '../rubycal/rubycal'
+require_relative 'test_helper'
 
 class TestRubyCal < MiniTest::Test
   def setup
@@ -155,7 +151,7 @@ class TestRubyCal < MiniTest::Test
     @app.use_cal(test_name)
     test_arr.each{ |param| @app.add_event(param) }
 
-    assert_equal(test_expected, @app.get_events_for_date(test_expected_date))
+    assert_equal(test_expected, @app.get_events_for_this_week)
   end
 
   def test_app_update_events

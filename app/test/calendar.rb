@@ -1,5 +1,4 @@
-require 'minitest/autorun'
-require_relative '../rubycal/rubycal'
+require_relative 'test_helper'
 
 class TestCalendar < Minitest::Test
   def setup
