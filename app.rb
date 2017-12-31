@@ -1,13 +1,14 @@
 require_relative "app/rubycal/rubycal"
 require "chronic"
 require "street_address"
+require "colorize"
 
 $app = RubyCal::App.new
 $init = false
 
 $commands = lambda {
   puts "  start    -  Add a new calendar"
-  puts "  use      -  Switches to the desired calendar"
+  puts "  use      -  Set current calendar to the desired calendar"
   puts "  cal      -  Returns all available calendars"
   puts "  add      -  Start up a command chain for adding a new event"
   puts "  get      -  Fetches all events, by specific params if desired."
@@ -60,7 +61,7 @@ $search_helper = lambda { |param|
 }
 
 $events_parser = lambda { |name, events|
-  puts "\n# #{name} #"
+  puts "\n# #{name} #".colorize(:blue)
   puts "--------------------"
   events.each &$event_parser
 }
@@ -109,12 +110,12 @@ $location_formatter = lambda { |loc|
 }
 
 # Begin the app! #
-puts "\nWelcome to RubyCal, the number one choice for non-GUI connoisseurs"
+puts "\nWelcome to RubyCal, the number one choice for non-GUI connoisseurs".colorize(:blue)
 puts "\nSome commands to help you get started..."
 $commands.call
 
 loop do
-  puts "\nMain menu!"
+  puts "\nMain menu!".colorize(:blue)
 
   puts "What would you like to do?"
   input = gets.chomp
@@ -125,7 +126,7 @@ loop do
       when "start"
         if params && params[0]
           $app.add_cal(params[0])
-          puts "\nAdded #{params[0]} to your calendars!"
+          puts "\nAdded #{params[0]} to your calendars!".colorize(:green)
         else
           loop do
             puts "\nWhat would you like the calendar to be called?"
@@ -133,9 +134,9 @@ loop do
             begin
               break if name == "-cancel"
               $app.add_cal(name)
-              break puts "\nAdded #{name} to your calendars!"
+              break puts "\nAdded #{name} to your calendars!".colorize(:green)
             rescue => exception
-              puts exception
+              puts exception.to_s.colorize(:red)
             end
           end
         end
@@ -144,7 +145,7 @@ loop do
         raise "No calendars added yet!" unless $app.get_cals.length > 0
         if params && params[0]
           $app.use_cal(params[0])
-          puts "Now using calendar #{params[0]}"
+          puts "\nNow using calendar #{params[0]}".colorize(:green)
         else
           loop do
             begin
@@ -154,9 +155,9 @@ loop do
               name = gets.chomp
               break if name == "-cancel"
               $app.use_cal(name)
-              break puts "Now using calendar #{name}"
+              break puts "\nNow using calendar #{name}".colorize(:green)
             rescue => exception
-              puts exception
+              puts exception.colorize.to_s.colorize(:red)
             end
           end
         end
@@ -191,6 +192,7 @@ loop do
 
           unless end_time == "all-day"
             end_time = Chronic.parse(end_time)
+            raise "End time must be later than start time" if start_time > end_time
             raise "Couldn't parse that end time" if end_time == nil
           end
           event_params[:end_time] = end_time == "all-day" ? nil : end_time
@@ -215,7 +217,7 @@ loop do
           end
 
           $app.add_event(event_params)
-          break puts "Added #{name} to #{$app.calendar.name}"
+          break puts "Added #{name} to #{$app.calendar.name}".colorize(:green)
         end
 
       when "get"
@@ -231,7 +233,7 @@ loop do
               break if param == "-cancel"
               break $search_helper.call(param)
             rescue => exception
-              break puts exception
+              break puts exception.to_s.colorize(:red)
             end
           end
         end
@@ -294,7 +296,7 @@ loop do
           update_params[:location] = location if location.length > 0
 
           $app.update_events(name, update_params)
-          break puts "Successfully updated #{name} in #{$app.calendar.name}"
+          break puts "Successfully updated #{name} in #{$app.calendar.name}".colorize(:green)
         end
 
       when "remove"
@@ -304,7 +306,7 @@ loop do
         param = gets.chomp
         unless param == "-cancel"
           temp = $app.remove_events(param)
-          puts "Removed #{temp == 1 ? temp.to_s + " event" : temp.to_s + " events"} with name #{param}"
+          puts "Removed #{temp == 1 ? temp.to_s + " event" : temp.to_s + " events"} with name #{param}".colorize(:green)
         end
 
       when "-cancel"
@@ -317,6 +319,6 @@ loop do
         puts "Couldn't understand that command. -l to view available commands"
     end
   rescue => exception
-    puts exception
+    puts exception.to_s.colorize(:red)
   end
 end
