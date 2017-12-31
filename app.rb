@@ -1,7 +1,10 @@
-require_relative "app/rubycal/rubycal"
+require 'active_support'
+require 'active_support/core_ext'
 require "chronic"
 require "street_address"
 require "colorize"
+
+require_relative "app/rubycal/rubycal"
 
 $app = RubyCal::App.new
 $init = false
@@ -64,7 +67,7 @@ $search_helper = lambda { |param|
 $update_helper = lambda {
   update_params = {}
 
-  puts "New name? ('-no' if the same)"
+  puts "\nNew name? ('-no' if the same)"
   update_name = gets.chomp
   break if update_name == "-cancel"
   update_params[:name] = update_name unless update_name == "-no"
@@ -123,13 +126,13 @@ $address_parser = lambda { |new_address, location = {}|
     if manual_input == 'y'
       puts "Location street? ('-no' if no street desired)"
       street = gets.chomp
-      location[:street] = street unless street == '-no'
+      location[:address] = street.titleize unless street == '-no'
       puts "Location city? ('-no' if no city desired)"
       city = gets.chomp
-      location[:city] = city unless city == '-no'
+      location[:city] = city.titleize unless city == '-no'
       puts "Location state? ('-no' if no state desired)"
       state = gets.chomp
-      location[:state] = state unless state == '-no'
+      location[:state] = state.upcase unless state == '-no'
       puts "Location zip? ('-no' if no zip desired)"
       zip = gets.chomp
       location[:zip] = zip unless zip == '-no'
