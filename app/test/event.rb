@@ -94,4 +94,13 @@ class TestEvent < MiniTest::Test
     assert_raises { test_event.update_event({ end_time: nil }) }
   end
 
+  def test_event_raises_if_start_after_end
+    test_start = Time.now
+    test_end = Time.now - 60 * 60
+    test_event_params = { name: 'test', start_time: test_start, end_time: test_end }
+    test_event_working = { name: 'test', start_time: test_start, end_time: test_start + 60 * 60 }
+    assert_raises { RubyCal::Event.new(test_event_params) }
+    assert_silent { RubyCal::Event.new(test_event_working) }
+  end
+
 end
