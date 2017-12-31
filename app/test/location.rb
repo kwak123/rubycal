@@ -1,5 +1,4 @@
 require 'minitest/autorun'
-require 'street_address'
 require_relative '../rubycal/rubycal'
 
 class TestLocation < Minitest::Test
@@ -16,23 +15,20 @@ class TestLocation < Minitest::Test
     assert_raises { RubyCal::Location.new({ name: '' }) }
   end
 
-  def test_loc_can_update
-    @location.update_location({ name: 'test2' })
-    assert_equal(@location.name, 'test2')
-
+  def test_loc_optionals
     test_params = {
+      name: 'test',
       address: '123 lex ave',
       city: 'New York',
       state: 'NY',
       zip: '10013'
     }
-    @location.update_location(test_params)
-    assert_equal(@location.name, 'test2')
-    assert_equal(@location.address, test_params[:address])
-    assert_equal(@location.city, test_params[:city])
-    assert_equal(@location.state, test_params[:state])
-    assert_equal(@location.zip, test_params[:zip])
-    assert_raises { @location.update_location({ name: '' }) }
+    test_location = RubyCal::Location.new(test_params)
+    assert_equal(test_location.name, test_params[:name])
+    assert_equal(test_location.address, test_params[:address])
+    assert_equal(test_location.city, test_params[:city])
+    assert_equal(test_location.state, test_params[:state])
+    assert_equal(test_location.zip, test_params[:zip])
   end
 
 end
