@@ -1,5 +1,6 @@
 require_relative 'app/rubycal/rubycal'
 require 'chronic'
+require 'street_address'
 
 $app = RubyCal::App.new
 $init = false
@@ -17,6 +18,15 @@ $commands = Proc.new {
   puts "  -l       -   To view these commands again"
 }
 
+$search_options = Proc.new {
+  puts "Choose an option to search by:"
+  puts "  all    -   all events"
+  puts "  name   -   by name"
+  puts "  today  -   by today"
+  puts "  date   -   by date"
+  puts "  week   -   within the next week"
+}
+
 $events_parser = Proc.new { |name, events|
   puts "#{name}"
   puts "--------------------"
@@ -25,19 +35,38 @@ $events_parser = Proc.new { |name, events|
 }
 
 $event_parser = Proc.new { |event|
-  event.each do |k, v| 
+  event.each do |k, v|
     if v.instance_of? Time
-      puts " -> #{k}: #{v.strftime("%b %e, %Y at %I:%M %p")}"
+      puts " -> #{$key_helper.call(k)}: #{v.strftime("%b %e, %Y at %I:%M %p")}"
+    elsif k == :location
+      puts " -> #{$key_helper.call(k)}: #{$location_helper.call(v)}"
     else
-      puts " -> #{k}: #{v}" 
+      puts " -> #{$key_helper.call(k)}: #{v}"
     end
   end
+}
+
+$key_helper = lambda { |k|
+  case k
+    when :start_time
+      'Starts'
+    when :end_time
+      'Ends'
+    when :location
+      'Location'
+    else
+      k
+  end
+}
+
+$location_helper = lambda { |loc|
+  street = [loc[:address], loc[:city], loc[:state], loc[:zip]].compact
+  "#{loc[:name]}: #{street.join(', ')}"
 }
 
 loop do
   unless $init
     puts "\nWelcome to RubyCal, the number one choice for non-GUI connoisseurs"
-    puts
     puts "\nSome commands to help you get started..."
     $commands.call
     $init = true
@@ -51,35 +80,53 @@ loop do
 
   case command
     when "start"
-      loop do 
-        puts "\nWhat would you like the calendar to be called?"
-        name = gets.chomp
-        begin
-          break if name == "-cancel"
-          $app.add_cal(name)
-          puts "\nAdded #{name} to your calendars!"
-          break
-        rescue => exception
-          puts exception
+      begin
+        if params && params[0]
+          $app.add_cal(params[0])
+          puts "\nAdded #{params[0]} to your calendars!"
+        else
+          loop do
+            puts "\nWhat would you like the calendar to be called?"
+            name = gets.chomp
+            begin
+              break if name == "-cancel"
+              $app.add_cal(name)
+              break puts "\nAdded #{name} to your calendars!"
+            rescue => exception
+              puts exception
+            end
+          end
         end
+      rescue => exception
+        puts exception
       end
 
+    # There certainly must be a more elegant solution to this
     when "use"
       unless $app.get_cals.length > 0
         puts "No calendars added yet!"
       else
-        loop do
-          puts "Which calendar would you like to use?"
-          puts "\nYour available calendars are:"
-          $app.get_cals.each { |name| puts "  #{name}" }
-          name = gets.chomp
-          begin
-            break if name == "-cancel"
-            $app.use_cal(name)
-            break puts "Now using calendar #{name}"
-          rescue => exception
-            puts exception
+        begin
+          if params && params[0]
+            $app.use_cal(params[0])
+            puts "Now using calendar #{params[0]}"
+          else
+            loop do
+              begin
+                puts "\nWhich calendar would you like to use?"
+                puts "Your available calendars are:"
+                $app.get_cals.each { |name| puts "  #{name}" }
+                name = gets.chomp
+                break if name == "-cancel"
+                $app.use_cal(name)
+                break puts "Now using calendar #{name}"
+              rescue => exception
+                puts exception
+              end
+            end
           end
+        rescue => exception
+          puts exception
         end
       end
 
@@ -95,21 +142,50 @@ loop do
       begin
         raise "Set a calendar first!" unless $app.calendar
 
-        puts "Event name? (required)"
-        name = gets.chomp
-        puts "Start time? (required)"
-        start_time = gets.chomp
-        puts "End time? You may also use 'all-day'"
-        end_time = gets.chomp
-        puts "Locationstub"
+        loop do
+          event_params = {}
 
-        $app.add_event({
-          name: name,
-          start_time: Chronic.parse(start_time),
-          end_time: end_time == 'all-day' ? nil : Chronic.parse(end_time),
-          all_day: end_time == 'all-day'
-        })
-        puts "Added #{name} to #{$app.calendar.name}"
+          puts "\nEvent name? (required)"
+          name = gets.chomp
+          break if name == '-cancel'
+          event_params[:name] = name
+
+          puts "Start time? (required)"
+          start_time = Chronic.parse(gets.chomp)
+          break if start_time == '-cancel'
+          raise "Couldn't parse that start time" if start_time == nil
+          event_params[:start_time] = start_time
+
+          puts "End time? You may also use 'all-day'"
+          end_time = gets.chomp
+          break if end_time == '-cancel'
+
+          unless end_time == 'all-day'
+            end_time = Chronic.parse(end_time)
+            raise "Couldn't parse that end time" if (end_time == nil)
+          end
+          event_params[:end_time] = end_time == 'all-day' ? nil : end_time
+          event_params[:all_day] = end_time == 'all-day'
+
+          puts "Would you like to add a location? (y/n)"
+          wants_loc = gets.chomp
+
+          if wants_loc == "y" || wants_loc == "yes"
+            location = {}
+            puts "What's the place called?"
+            location[:name] = gets.chomp
+            puts "Location address?"
+            address = StreetAddress::US.parse(gets.chomp)
+            location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
+            location[:city] = address.city
+            location[:state] = address.state
+            location[:zip] = address.postal_code
+            event_params[:location] = location
+          end
+
+          $app.add_event(event_params)
+          break puts "Added #{name} to #{$app.calendar.name}"
+        end
       rescue => exception
         puts exception
       end
@@ -117,15 +193,7 @@ loop do
     when "get"
       begin
         raise "Set a calendar first!" unless $app.calendar
-
-        puts "Choose an option to search by:"
-        puts "  all    -   all events"
-        puts "  name   -   by name"
-        puts "  today  -   by today"
-        puts "  date   -   by date"
-        puts "  week   -   within the next week"
-
-        param = gets.chomp
+        param = params && params[0] ? params[0] : gets.chomp
         case param
 
           when "all"
@@ -165,9 +233,12 @@ loop do
             else
               puts "No events found for #{time.strftime('%b %e, %Y')}"
             end
-          
+
           when "week"
             $app.get_events_for_this_week.each &$events_parser
+
+          else
+            puts "#{param} is not a valid option!"
         end
 
       rescue => exception
@@ -213,7 +284,7 @@ loop do
 
     when "remove"
       begin
-        puts "Which event(s) would you like to remove?"
+        puts "\nWhich event(s) would you like to remove?"
         puts "Available events for #{$app.calendar.name}:"
         $app.get_events.each { |name, events| puts "  #{name}"}
         param = gets.chomp
@@ -226,7 +297,7 @@ loop do
 
     when "-l"
       $commands.call
-      
+
     else
       puts "Couldn't understand that command. -l to view available commands"
   end

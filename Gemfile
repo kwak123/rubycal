@@ -8,6 +8,7 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gem "sqlite3"
 gem "minitest"
 gem "activesupport"
+gem "StreetAddress"
 
 # Recommended bundle exec commands
 # ruby -Ilib:test test.rb -v

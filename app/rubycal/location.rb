@@ -16,7 +16,7 @@ module RubyCal
     # Validate inputs completely, e.g. city should exist, state should be real
 
   class Location
-    attr_accessor :name, :address, :city, :state, :zip
+    attr_reader :name, :address, :city, :state, :zip
 
     def initialize(params)
       raise ArgumentError, "Location requires name" unless (params[:name].kind_of? String) && (params[:name].length > 0)

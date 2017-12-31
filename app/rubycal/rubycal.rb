@@ -24,7 +24,7 @@ module RubyCal
 
     public
     def add_cal(name)
-      raise NameError, "No calendar by that name!" if @calendars[name]
+      raise NameError, "Calendar already exists!" if @calendars[name]
       @calendars[name] = Calendar.new(name)
     end
 
