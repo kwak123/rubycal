@@ -82,12 +82,24 @@ class TestRubyCal < MiniTest::Test
     assert_instance_of(RubyCal::Location, @app.calendar.events_with_name(test_name)[0].location)
   end
 
-  def test_app_events
+  def test_app_get_events
     assert_raises { @app.get_events }
     test_name = 'test'
+    test_start = Time.now
+    test_event1 = { name: 'test1', start_time: test_start, all_day: true }
+    test_event2 = { name: 'test2', start_time: test_start, all_day: true }
+    test_expected = {
+      test1: [test_event1.select { |k| k != :name }],
+      test2: [test_event2.select { |k| k != :name }]
+    }
+    @app.add_cal(test_name)
+    @app.use_cal(test_name)
+    @app.add_event(test_event1)
+    @app.add_event(test_event2)
+    assert_equal(test_expected, @app.get_events)
   end
 
-  def test_app_events_with_name
+  def test_app_get_events_with_name
     assert_raises { @app.get_events_with_name }
     test_name = 'test'
     test_arr = [{ name: test_name, start_time: Time.now, all_day: true }, { name: test_name, start_time: Time.now, end_time: Time.now + 60 }]
@@ -101,7 +113,7 @@ class TestRubyCal < MiniTest::Test
     assert_equal(test_expected, @app.get_events_with_name(test_name))
   end
 
-  def test_app_events_for_today
+  def test_app_get_events_for_today
     assert_raises { @app.get_events_for_today }
     test_name = 'test'
     today = Time.now
@@ -116,7 +128,7 @@ class TestRubyCal < MiniTest::Test
     assert_equal(test_expected, @app.get_events_for_today)
   end
 
-  def test_app_events_for_date
+  def test_app_get_events_for_date
     assert_raises { @app.get_events_for_date(Time.now) }
     test_name = 'test'
     test_expected_date = Time.now + 60 * 60 * 24
@@ -131,7 +143,7 @@ class TestRubyCal < MiniTest::Test
     assert_equal(test_expected, @app.get_events_for_date(test_expected_date))
   end
 
-  def test_app_events_for_this_week
+  def test_app_get_events_for_this_week
     assert_raises { @app.get_events_for_week(Time.now) }
     test_name = 'test'
     test_expected_date = Time.now
@@ -189,8 +201,9 @@ class TestRubyCal < MiniTest::Test
     @app.use_cal(test_name)
     test_arr.each { |params| @app.add_event(params) }
 
-    @app.remove_events(test_name)
-    assert_equal([], @app.get_events_with_name(test_name))
+    temp = @app.remove_events(test_name)
+    assert_equal(2, temp)
+    assert_raises { @app.get_events_with_name(test_name) }
   end
 
   def test_app_loc_formatting

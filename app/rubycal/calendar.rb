@@ -69,6 +69,7 @@ module RubyCal
         temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, today) }
         result[name] = temp if temp.length > 0
       end
+      raise "No events found for today" unless result.length > 0
       result
     end
 
@@ -80,6 +81,7 @@ module RubyCal
         temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, date) }
         result[name] = temp if temp.length > 0
       end
+      raise "No events for that date" unless result.length > 0
       result
     end
 
@@ -92,6 +94,7 @@ module RubyCal
         temp = bucket.select { |event| WEEK_COMPARER.call(event.start_time, today) }
         result[name] = temp if temp.length > 0
       end
+      raise "No events found for this week" unless result.length > 0
       result
     end
 
