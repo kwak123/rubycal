@@ -56,7 +56,8 @@ module RubyCal
       # Returning array because name is the separating value
     public 
     def events_with_name(name)
-      @events[name] || []
+      raise NameError, "No events found with that name" unless @events[name]
+      @events[name]
     end
 
     # events_for_today – Returns events that occur today.

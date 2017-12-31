@@ -5,7 +5,7 @@ require 'street_address'
 $app = RubyCal::App.new
 $init = false
 
-$commands = Proc.new {
+$commands = lambda {
   puts "\n(Any parameter prefixed with a ? is optional)"
   puts "  start    -   Add a new calendar"
   puts "  use      -   Switches to the desired calendar"
@@ -18,8 +18,8 @@ $commands = Proc.new {
   puts "  -l       -   To view these commands again"
 }
 
-$search_options = Proc.new {
-  puts "Choose an option to search by:"
+$search_options = lambda{
+  puts "\nChoose an option to search by:"
   puts "  all    -   all events"
   puts "  name   -   by name"
   puts "  today  -   by today"
@@ -27,26 +27,79 @@ $search_options = Proc.new {
   puts "  week   -   within the next week"
 }
 
-$events_parser = Proc.new { |name, events|
+$search_helper = lambda { |param|
+  case param
+    when "all"
+      temp = $app.get_events
+      raise "No events added yet!" unless temp.length > 0
+      break temp.each &$events_parser
+
+    when "name"
+      puts "\nEvent name?"
+      puts "Available events for #{$app.calendar.name}:"
+      $app.get_events.each { |name, events| puts "  #{name}" }
+      param = gets.chomp
+      break if param == '-cancel'
+      puts
+      temp = $app.get_events_with_name(param)
+      puts "\n#{param}"
+      break temp.each &$event_parser
+
+    when "today"
+      temp = $app.get_events_for_today
+      raise "No events for today" unless temp.length > 0
+      break temp.each &$events_parser
+
+    when "date"
+      puts "\nWhat's the date?"
+      param = gets.chomp
+      break if param == '-cancel'
+      date = Chronic.parse(param)
+      raise "Couldn't parse that date" if date == nil
+      temp = $app.get_events_for_date(date)
+      raise "No events found for #{date.strftime('%b %e, %Y')}" unless temp.length > 0
+      break temp.each &$events_parser
+
+    when "week"
+      temp = $app.get_events_for_this_week
+      raise "No events for this week" unless temp.length > 0
+      break temp.each &$events_parser
+
+    else
+      puts "#{param} is not a valid option!"
+  end
+}
+
+$events_parser = lambda { |name, events|
   puts "#{name}"
   puts "--------------------"
   events.each &$event_parser
   puts
 }
 
+$address_parser = Proc.new { |new_address, location = {}|
+  address = StreetAddress::US.parse(new_address)
+  raise "Couldn't parse that address" if address == nil
+  location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
+  location[:city] = address.city
+  location[:state] = address.state
+  location[:zip] = address.postal_code
+  location
+}
+
 $event_parser = Proc.new { |event|
   event.each do |k, v|
     if v.instance_of? Time
-      puts " -> #{$key_helper.call(k)}: #{v.strftime("%b %e, %Y at %I:%M %p")}"
+      puts " -> #{$key_formatter.call(k)}: #{v.strftime("%b %e, %Y at %I:%M %p")}"
     elsif k == :location
-      puts " -> #{$key_helper.call(k)}: #{$location_helper.call(v)}"
+      puts " -> #{$key_formatter.call(k)}: #{$location_formatter.call(v)}"
     else
-      puts " -> #{$key_helper.call(k)}: #{v}"
+      puts " -> #{$key_formatter.call(k)}: #{v}"
     end
   end
 }
 
-$key_helper = lambda { |k|
+$key_formatter = lambda { |k|
   case k
     when :start_time
       'Starts'
@@ -59,7 +112,7 @@ $key_helper = lambda { |k|
   end
 }
 
-$location_helper = lambda { |loc|
+$location_formatter = lambda { |loc|
   street = [loc[:address], loc[:city], loc[:state], loc[:zip]].compact
   "#{loc[:name]}: #{street.join(', ')}"
 }
@@ -103,10 +156,8 @@ loop do
 
     # There certainly must be a more elegant solution to this
     when "use"
-      unless $app.get_cals.length > 0
-        puts "No calendars added yet!"
-      else
         begin
+          raise "No calendars added yet!" unless $app.get_cals.length > 0
           if params && params[0]
             $app.use_cal(params[0])
             puts "Now using calendar #{params[0]}"
@@ -128,14 +179,14 @@ loop do
         rescue => exception
           puts exception
         end
-      end
 
     when "cal"
-      unless $app.get_cals.length > 0
-        puts "No calendars added yet!"
-      else
+      begin
+        raise "No calendars added yet!" unless $app.get_cals.length > 0
         puts "\nYour available calendars are:"
         $app.get_cals.each { |name| puts "  #{name}" }
+      rescue => exception
+        puts exception
       end
 
     when "add"
@@ -175,12 +226,7 @@ loop do
             puts "What's the location called?"
             location[:name] = gets.chomp
             puts "Location address?"
-            address = StreetAddress::US.parse(gets.chomp)
-            raise "Couldn't parse that address" if address == nil
-            location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
-            location[:city] = address.city
-            location[:state] = address.state
-            location[:zip] = address.postal_code
+            $address_parser.call(gets.chomp, location)
             event_params[:location] = location
           end
 
@@ -194,52 +240,20 @@ loop do
     when "get"
       begin
         raise "Set a calendar first!" unless $app.calendar
-        param = params && params[0] ? params[0] : gets.chomp
-        case param
-
-          when "all"
-            $app.get_events.each &$events_parser
-
-          when "name"
-            puts "Event name?"
-            puts "Available events for #{$app.calendar.name}:"
-            $app.get_events.each { |name, events| puts "  #{name}" }
-            param = gets.chomp
-            break if param == '-cancel'
-            puts
-            temp = $app.get_events_with_name(param)
-            if temp.length > 0
-              puts "\n#{param}"
-              temp.each &$event_parser
-            else
-              puts "No events found with name #{param}"
+        if params && params[0]
+          $search_helper.call(params[0])
+        else
+          puts "What would you like to get?"
+          loop do
+            begin
+              $search_options.call
+              param = gets.chomp
+              break if param == '-cancel'
+              $search_helper.call(param)
+            rescue => exception
+              puts exception
             end
-
-          when "today"
-            temp = $app.get_events_for_today
-            if temp.length > 0
-              temp.each &$events_parser
-            else
-              puts "No events for today"
-            end
-
-          when "date"
-            puts "What's the date?"
-            param = gets.chomp
-            break if param == '-cancel'
-            time = Chronic.parse(param)
-            temp = $app.get_events_for_date(time)
-            if temp.length > 0
-              temp.each &$events_parser
-            else
-              puts "No events found for #{time.strftime('%b %e, %Y')}"
-            end
-
-          when "week"
-            $app.get_events_for_this_week.each &$events_parser
-
-          else
-            puts "#{param} is not a valid option!"
+          end
         end
 
       rescue => exception
@@ -295,21 +309,12 @@ loop do
           puts "New location name? ('-no' if the same)"
           update_loc_name = gets.chomp
           break if update_loc_name == '-cancel'
-          unless update_loc_name == '-no'
-            location[:name] = update_loc_name
-          end
+          location[:name] = update_loc_name unless update_loc_name == '-no'
 
           puts "New location address? ('-no' if the same)"
           update_loc_address = gets.chomp
           break if update_loc_address == '-cancel'
-          unless update_loc_address == '-no'
-            address = StreetAddress::US.parse(update_loc_address)
-            raise "Couldn't parse that address" if address == nil
-            location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
-            location[:city] = address.city
-            location[:state] = address.state
-            location[:zip] = address.postal_code
-          end
+          $address_parser.call(update_loc_address, location) unless update_loc_address == '-no'
 
           update_params[:location] = location
 
