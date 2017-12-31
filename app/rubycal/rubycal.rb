@@ -36,7 +36,7 @@ module RubyCal
 
     public
     def get_cals
-      @calendars.reduce([]) do |memo, (k, v)|
+      @calendars.reduce([]) do |memo, (k)|
         memo << k
         memo
       end
@@ -62,13 +62,13 @@ module RubyCal
 
     public
     def get_events_with_name(name)
-      raise RuntimeError, "Set a calendar first!" unless @calendar
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
       format_hash_array(@calendar.events_with_name(name))
     end
 
     public
     def get_events_for_today
-      raise RuntimeError, "Set a calendar first!" unless @calendar
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
       @calendar.events_for_today.reduce({}) do |memo, (name, events)|
         memo[name.to_sym] = format_hash_array(events)
         memo
@@ -77,7 +77,7 @@ module RubyCal
 
     public
     def get_events_for_date(date)
-      raise RuntimeError, "Set a calendar first!" unless @calendar
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
       @calendar.events_for_date(date).reduce({}) do |memo, (name, events)|
         memo[name.to_sym] = format_hash_array(events)
         memo
@@ -86,7 +86,7 @@ module RubyCal
 
     public
     def get_events_for_this_week
-      raise RuntimeError, "Set a calendar first!" unless @calendar
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
       @calendar.events_for_this_week.reduce({}) do |memo, (name, events)|
         memo[name.to_sym] = format_hash_array(events)
         memo
@@ -95,7 +95,7 @@ module RubyCal
 
     public
     def update_events(name, params)
-      raise RuntimeError, "Set a calendar first!" unless @calendar
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
       if params[:location]
         temp_loc_vals = @calendar.events_with_name(name)[0].location.instance_values.symbolize_keys
         new_loc = Location.new(temp_loc_vals.merge(params[:location]))
@@ -106,7 +106,7 @@ module RubyCal
 
     public
     def remove_events(name)
-      raise RuntimeError, "Set a calendar first!" unless @calendar
+      raise RuntimeError, "Set a calendar first!" if @calendar == nil
       @calendar.remove_events(name)
     end
 
