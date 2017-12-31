@@ -95,6 +95,7 @@ module RubyCal
     public
     def update_events(name, params)
       raise RuntimeError, "Set a calendar first!" unless @calendar
+      
       @calendar.update_events(name, params)
     end
 

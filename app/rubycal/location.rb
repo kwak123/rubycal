@@ -30,7 +30,7 @@ module RubyCal
     # Raise error for poorly formatted params, or ignore?
     public
     def update_location(params)
-      raise ArgumentError, "Location requires name" unless (!params[:name]) || (params[:name].kind_of? String) && (params[:name].length > 0)
+      raise ArgumentError, "Location requires name" unless (!params[:name]) || ((params[:name].kind_of? String) && (params[:name].length > 0))
       params.each do |k, v|
         self.instance_variable_set("@#{k}", v)
       end

@@ -58,8 +58,8 @@ module RubyCal
             raise ArgumentError, "Invalid end time, received #{params[:end_time]}" unless params[:start_time].kind_of? Time
           when :location
             raise ArgumentError, "Invalid location" unless params[:location].instance_of? RubyCal::Location
-          end
         end
+      end
     end
 
   end

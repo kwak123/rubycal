@@ -1,4 +1,5 @@
 require 'minitest/autorun'
+require 'street_address'
 require_relative '../rubycal/rubycal'
 
 class TestLocation < Minitest::Test

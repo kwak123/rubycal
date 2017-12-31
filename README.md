@@ -7,4 +7,4 @@ Ruby for all!
 * Defensive arguments in RubyCal::App
 * Add tests for get_events in RubyCal::App
 * Add some way of seeing all events with dates attached
-* Add tests for street_address into Location
+* ~~Add tests for street_address into Location~~ _should actually be UI tests_

@@ -97,7 +97,7 @@ module RubyCal
     # update_events(name, params) – For all calendar events matching the given name, then update the event's attributes based on the given params.
     public
     def update_events(name, params)
-      raise NameError 'No event(s) by that name' unless @events[name]
+      raise NameError, 'No event(s) by that name' unless @events[name]
       @events[name].each { |x| x.update_event(params) }
       @events[name].length
     end
@@ -105,7 +105,7 @@ module RubyCal
     # remove_events(name) – Removes calendar events with the given name.
     public
     def remove_events(name)
-      raise NameError 'No event(s) by that name' unless @events[name]
+      raise NameError, 'No event(s) by that name' unless @events[name]
       prev_length = @events[name].length
       @events.delete(name)
       prev_length
