@@ -10,6 +10,9 @@ Ruby for all!
 
 * Using rake to run tests and generate coverage report<br>
   ```rake coverage```
+
+* Using rake to view coverage report</br>
+  ```rake view```
   
 * Using the Gemfile to run the app<br>
   ```bundle exec ruby app.rb```

@@ -22,3 +22,8 @@ task :coverage do
   ENV['COVERAGE'] = 'true'
   Rake::Task['test'].execute
 end
+
+desc 'View coverage report'
+task :view do
+  sh 'open coverage/index.html'
+end
