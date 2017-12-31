@@ -7,15 +7,16 @@ $app = RubyCal::App.new
 $init = false
 
 $commands = lambda {
-  puts "  start    -  Add a new calendar"
-  puts "  use      -  Set current calendar to the desired calendar"
-  puts "  cal      -  Returns all available calendars"
-  puts "  add      -  Start up a command chain for adding a new event"
-  puts "  get      -  Fetches all events, by specific params if desired."
-  puts "  update   -  Start up a command chain for updating events"
-  puts "  remove   -  Removes any events matching the event name"
-  puts "  -cancel  -  Use at any time to back out of the current chain"
-  puts "  -l       -  To view these commands again"
+  puts "Commands followed by <?> support a parameter as a shortcut for the first set of options"
+  puts "  start <?>   -  Add a new calendar"
+  puts "  use <?>     -  Set current calendar to the desired calendar"
+  puts "  cal         -  Returns all available calendars"
+  puts "  add         -  Start up a command chain for adding a new event"
+  puts "  get <?>     -  Fetches all events, by specific params if desired."
+  puts "  update <?>  -  Start up a command chain for updating events"
+  puts "  remove <?>  -  Removes any events matching the event name"
+  puts "  -cancel     -  Use at any time to back out of the current chain"
+  puts "  -l          -  To view these commands again"
 }
 
 $search_options = lambda{
@@ -60,13 +61,60 @@ $search_helper = lambda { |param|
   end
 }
 
+$update_helper = lambda {
+  update_params = {}
+
+  puts "New name? ('-no' if the same)"
+  update_name = gets.chomp
+  break if update_name == "-cancel"
+  update_params[:name] = update_name unless update_name == "-no"
+
+  puts "New start time? ('-no' if the same)"
+  update_start_time = gets.chomp
+  break if update_start_time == "-cancel"
+  unless update_start_time == "-no"
+    update_start_time = Chronic.parse(update_start_time)
+    raise "Couldn't parse that start time" if update_start_time == nil
+    update_params[:start_time] = update_start_time
+  end
+
+  puts "New end time? ('-no' if the same, 'all-day' to mark as an all-day event)"
+  update_end_time = gets.chomp
+  break if update_end_time == "-cancel"
+  unless update_end_time == "-no"
+    if update_end_time == "all-day"
+      update_params[:end_time] = nil
+      update_params[:all_day] = true
+    else
+      update_end_time = Chronic.parse(update_end_time)
+      raise "Couldn't parse that end time" if update_end_time == nil
+      update_params[:end_time] = update_end_time
+      update_params[:all_day] = false
+    end
+  end
+
+  location = {}
+  puts "New location name? ('-no' if the same)"
+  update_loc_name = gets.chomp
+  break if update_loc_name == "-cancel"
+  location[:name] = update_loc_name unless update_loc_name == "-no"
+
+  puts "New location address? ('-no' if the same)"
+  update_loc_address = gets.chomp
+  break if update_loc_address == "-cancel"
+  $address_parser.call(update_loc_address, location) unless update_loc_address == "-no"
+
+  update_params[:location] = location if location.length > 0
+  update_params
+}
+
 $events_parser = lambda { |name, events|
   puts "\n# #{name} #".colorize(:blue)
   puts "--------------------"
   events.each &$event_parser
 }
 
-$address_parser = Proc.new { |new_address, location = {}|
+$address_parser = lambda { |new_address, location = {}|
   address = StreetAddress::US.parse(new_address)
   raise "Couldn't parse that address" if address == nil
   location[:address] = "#{address.number} #{address.street} #{address.street_type}".chomp
@@ -76,7 +124,7 @@ $address_parser = Proc.new { |new_address, location = {}|
   location
 }
 
-$event_parser = Proc.new { |param|
+$event_parser = lambda { |param|
   param.each do |k, v|
     if v.instance_of? Time
       puts " -> #{$key_formatter.call(k)}: #{v.strftime("%b %-d, %Y at %I:%M %p")}"
@@ -111,12 +159,11 @@ $location_formatter = lambda { |loc|
 
 # Begin the app! #
 puts "\nWelcome to RubyCal, the number one choice for non-GUI connoisseurs".colorize(:blue)
-puts "\nSome commands to help you get started..."
+puts "\nSome commands to help you get started...".colorize(:blue)
 $commands.call
 
 loop do
   puts "\nMain menu!".colorize(:blue)
-
   puts "What would you like to do?"
   input = gets.chomp
   command, *params = input.split /\s/
@@ -240,73 +287,40 @@ loop do
 
       when "update"
         raise "Set a calendar first!" unless $app.calendar
+        if params && params[0]
+          update_params = $update_helper.call
+          $app.update_events(params[0], update_params)
+          puts "Successfully updated #{params[0]} in #{$app.calendar.name}".colorize(:green)
+        else
+          loop do
+            puts "\nWhich event(s) would you like to update? (name)"
+            puts "Available events for #{$app.calendar.name}:"
+            $app.get_events.each { |name, events| puts "  #{name}"}
 
-        loop do
-          puts "\nWhich event would you like to update? (name)"
-          puts "Available events for #{$app.calendar.name}:"
-          $app.get_events.each { |name, events| puts "  #{name}"}
+            name = gets.chomp
+            break if name == "-cancel"
+            raise "No event by that name" unless $app.get_events.has_key? name.to_sym
 
-          name = gets.chomp
-          break if name == "-cancel"
-          raise "No event by that name" unless $app.get_events.has_key? name.to_sym
+            update_params = $update_helper.call
 
-          update_params = {}
-
-          puts "New name? ('-no' if the same)"
-          update_name = gets.chomp
-          break if update_name == "-cancel"
-          update_params[:name] = update_name unless update_name == "-no"
-
-          puts "New start time? ('-no' if the same)"
-          update_start_time = gets.chomp
-          break if update_start_time == "-cancel"
-          unless update_start_time == "-no"
-            update_start_time = Chronic.parse(update_start_time)
-            raise "Couldn't parse that start time" if update_start_time == nil
-            update_params[:start_time] = update_start_time
+            $app.update_events(name, update_params)
+            break puts "Successfully updated #{name} in #{$app.calendar.name}".colorize(:green)
           end
-
-          puts "New end time? ('-no' if the same, 'all-day' to mark as an all-day event)"
-          update_end_time = gets.chomp
-          break if update_end_time == "-cancel"
-          unless update_end_time == "-no"
-            if update_end_time == "all-day"
-              update_params[:end_time] = nil
-              update_params[:all_day] = true
-            else
-              update_end_time = Chronic.parse(update_end_time)
-              puts update_end_time.instance_of? Time
-              raise "Couldn't parse that end time" if update_end_time == nil
-              update_params[:end_time] = update_end_time
-              update_params[:all_day] = false
-            end
-          end
-
-          location = {}
-          puts "New location name? ('-no' if the same)"
-          update_loc_name = gets.chomp
-          break if update_loc_name == "-cancel"
-          location[:name] = update_loc_name unless update_loc_name == "-no"
-
-          puts "New location address? ('-no' if the same)"
-          update_loc_address = gets.chomp
-          break if update_loc_address == "-cancel"
-          $address_parser.call(update_loc_address, location) unless update_loc_address == "-no"
-
-          update_params[:location] = location if location.length > 0
-
-          $app.update_events(name, update_params)
-          break puts "Successfully updated #{name} in #{$app.calendar.name}".colorize(:green)
         end
 
       when "remove"
-        puts "\nWhich event(s) would you like to remove?"
-        puts "Available events for #{$app.calendar.name}:"
-        $app.get_events.each { |name, events| puts "  #{name}"}
-        param = gets.chomp
-        unless param == "-cancel"
-          temp = $app.remove_events(param)
+        if params && params[0]
+          temp = $app.remove_events(params[0])
           puts "Removed #{temp == 1 ? temp.to_s + " event" : temp.to_s + " events"} with name #{param}".colorize(:green)
+        else
+          puts "\nWhich event(s) would you like to remove?"
+          puts "Available events for #{$app.calendar.name}:"
+          $app.get_events.each { |name, events| puts "  #{name}"}
+          param = gets.chomp
+          unless param == "-cancel"
+            temp = $app.remove_events(param)
+            puts "Removed #{temp == 1 ? temp.to_s + " event" : temp.to_s + " events"} with name #{param}".colorize(:green)
+          end
         end
 
       when "-cancel"
@@ -316,7 +330,7 @@ loop do
         $commands.call
 
       else
-        puts "Couldn't understand that command. -l to view available commands"
+        puts "Couldn't understand that command. -l to view available commands".colorize(:red)
     end
   rescue => exception
     puts exception.to_s.colorize(:red)
