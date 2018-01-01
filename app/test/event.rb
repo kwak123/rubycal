@@ -87,6 +87,8 @@ class TestEvent < MiniTest::Test
     }
     test_event = RubyCal::Event.new(test_params)
     assert_raises { test_event.update_event({ end_time: nil }) }
+    test_event.update_event({ end_time: nil, all_day: true })
+    assert_equal(true, test_event.all_day)
   end
 
   def test_event_raises_if_start_after_end
