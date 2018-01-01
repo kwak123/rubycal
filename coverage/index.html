@@ -14,7 +14,7 @@
       <img src="./assets/0.10.2/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2017-12-31T18:02:21-05:00">2017-12-31T18:02:21-05:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2017-12-31T19:03:36-05:00">2017-12-31T19:03:36-05:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -25,7 +25,7 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         9.35
+         9.44
        </span>
     </span> hits/line)
   </h2>
@@ -67,7 +67,7 @@
         <td>32</td>
         <td>32</td>
         <td>0</td>
-        <td>22.6</td>
+        <td>23.1</td>
       </tr>
       
       <tr>
@@ -1111,20 +1111,20 @@
           <code class="ruby">    def update_event(params)</code>
         </li>
       
-        <li class="covered" data-hits="16" data-linenumber="37">
-          <span class="hits">16</span>
+        <li class="covered" data-hits="17" data-linenumber="37">
+          <span class="hits">17</span>
           
           <code class="ruby">      verify_params(params)</code>
         </li>
       
-        <li class="covered" data-hits="13" data-linenumber="38">
-          <span class="hits">13</span>
+        <li class="covered" data-hits="15" data-linenumber="38">
+          <span class="hits">15</span>
           
           <code class="ruby">      test_vars = self.instance_values</code>
         </li>
       
-        <li class="covered" data-hits="29" data-linenumber="39">
-          <span class="hits">29</span>
+        <li class="covered" data-hits="34" data-linenumber="39">
+          <span class="hits">34</span>
           
           <code class="ruby">      params.each { |k, v| test_vars[k.to_s] = v }</code>
         </li>
@@ -1141,20 +1141,20 @@
           <code class="ruby">      # Test params are valid first, to prevent modfying event</code>
         </li>
       
-        <li class="covered" data-hits="13" data-linenumber="42">
-          <span class="hits">13</span>
+        <li class="covered" data-hits="15" data-linenumber="42">
+          <span class="hits">15</span>
           
           <code class="ruby">      raise ArgumentError, &quot;Need end_time or all_day&quot; unless test_vars[&#39;all_day&#39;] || test_vars[&#39;end_time&#39;]</code>
         </li>
       
-        <li class="covered" data-hits="12" data-linenumber="43">
-          <span class="hits">12</span>
+        <li class="covered" data-hits="13" data-linenumber="43">
+          <span class="hits">13</span>
           
           <code class="ruby">      raise ArgumentError, &quot;Event cannot start after end&quot; unless test_vars[&#39;all_day&#39;] || (test_vars[&#39;start_time&#39;] &lt;= test_vars[&#39;end_time&#39;])</code>
         </li>
       
-        <li class="covered" data-hits="25" data-linenumber="44">
-          <span class="hits">25</span>
+        <li class="covered" data-hits="28" data-linenumber="44">
+          <span class="hits">28</span>
           
           <code class="ruby">      params.each { |k, v| self.instance_variable_set(&quot;@#{k}&quot;, v) }</code>
         </li>
@@ -1183,14 +1183,14 @@
           <code class="ruby">    def verify_params(params)</code>
         </li>
       
-        <li class="covered" data-hits="16" data-linenumber="49">
-          <span class="hits">16</span>
+        <li class="covered" data-hits="17" data-linenumber="49">
+          <span class="hits">17</span>
           
           <code class="ruby">      params.each do |k, v|</code>
         </li>
       
-        <li class="covered" data-hits="19" data-linenumber="50">
-          <span class="hits">19</span>
+        <li class="covered" data-hits="21" data-linenumber="50">
+          <span class="hits">21</span>
           
           <code class="ruby">        case k</code>
         </li>
@@ -1225,10 +1225,10 @@
           <code class="ruby">          when :end_time</code>
         </li>
       
-        <li class="covered" data-hits="4" data-linenumber="56">
-          <span class="hits">4</span>
+        <li class="covered" data-hits="5" data-linenumber="56">
+          <span class="hits">5</span>
           
-          <code class="ruby">            raise ArgumentError, &quot;Invalid end time, received #{params[:end_time]}&quot; unless params[:end_time].kind_of? Time</code>
+          <code class="ruby">            raise ArgumentError, &quot;Invalid end time, received #{params[:end_time]}&quot; unless (params[:end_time] == nil) || (params[:end_time].kind_of? Time)</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="57">
