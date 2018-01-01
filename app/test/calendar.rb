@@ -147,6 +147,7 @@ class TestCalendar < Minitest::Test
 
     test_update_params2 = { location: { address: '8545 Merion Drive' } }
     assert_raises { @cal.update_events(test_event1.name, test_update_params2) }
+
     test_update_params2[:location] = RubyCal::Location.new({ name: 'test', address: '8545 Merion Drive' })
     @cal.update_events(test_event1.name, test_update_params2)
     assert_equal(test_update_params2[:location], @cal.events_with_name(test_event1.name)[0].location)
@@ -168,10 +169,9 @@ class TestCalendar < Minitest::Test
     @cal.add_event(test_event1)
     # Add first
     assert_equal([test_event1], @cal.events_with_name(test_event1.name))
-    
+
     temp = @cal.remove_events(test_event1.name)
     assert_equal(1, temp)
     assert_raises { @cal.events_with_name(test_event1.name) }
   end
-
 end

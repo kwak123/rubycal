@@ -44,7 +44,7 @@ class TestRubyCal < MiniTest::Test
     @app.add_cal(test_name2)
     assert_equal([test_name, test_name2], @app.get_cals)
   end
-  
+
   def test_app_add_event
     assert_raises { @app.add_event }
     test_name = 'test'
@@ -179,7 +179,7 @@ class TestRubyCal < MiniTest::Test
 
     test_loc_init = { name: test_loc_name }
     test_event_params = { name: test_name, start_time: Time.now, all_day: true, location: test_loc_init }
-    
+
     @app.add_cal(test_name)
     @app.use_cal(test_name)
     @app.add_event(test_event_params)
@@ -192,7 +192,7 @@ class TestRubyCal < MiniTest::Test
     test_name = 'test'
     test_date = Time.now
     test_arr = [{ name: test_name, start_time: test_date, all_day: true }, { name: test_name, start_time: test_date, all_day: true }]
-    
+
     @app.add_cal(test_name)
     @app.use_cal(test_name)
     test_arr.each { |params| @app.add_event(params) }
@@ -213,5 +213,4 @@ class TestRubyCal < MiniTest::Test
     @app.add_event(test_params)
     assert_equal(test_expected, @app.get_events_for_date(test_date))
   end
-  
 end
