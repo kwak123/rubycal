@@ -333,7 +333,7 @@ loop do
       when "remove"
         if params && params[0]
           temp = $app.remove_events(params[0])
-          puts "Removed #{temp == 1 ? temp.to_s + " event" : temp.to_s + " events"} with name #{param}".colorize(:green)
+          puts "Removed #{temp == 1 ? temp.to_s + " event" : temp.to_s + " events"} with name #{params[0]}".colorize(:green)
         else
           puts "\nWhich event(s) would you like to remove?"
           puts "Available events for #{$app.calendar.name}:"
