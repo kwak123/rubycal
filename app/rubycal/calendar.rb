@@ -6,33 +6,32 @@ module RubyCal
   # Requirements
     # Method requirements written above methods
     # Must have a name
-  
+
   # Implementation
     # Done as per the requirements
     # Names were chose for hashes, as specifications cite multiple all-event methods
       # To simplify removing multiple of a hash
     # Arrays are used as buckets to support multiple events with same name
-  
+
   DATE_COMPARER = Proc.new do |t1, t2|
-    raise ArgumentError, "Invalid Time" unless (t1.instance_of? Time) && (t2.instance_of? Time)
+    raise ArgumentError, 'Invalid Time' unless (t1.instance_of? Time) && (t2.instance_of? Time)
     t1.year == t2.year && t1.month == t2.month && t1.day == t2.day
   end
 
   WEEK_COMPARER = Proc.new do |t1, t2|
-    raise ArgumentError, "Invalid Time" unless (t1.instance_of? Time) && (t2.instance_of? Time)
+    raise ArgumentError, 'Invalid Time' unless (t1.instance_of? Time) && (t2.instance_of? Time)
     week = 60 * 60 * 24 * 7
     t1 > t2 ? t1 < t2 + week : t2 < t1 + week
   end
 
   class Calendar
-
     attr_reader :name
 
     # events – Returns all events for the calendar.
     attr_accessor :events
 
     def initialize(name)
-      raise ArgumentError, "Calendar name is missing" unless (name.length > 0) && (name.kind_of? String)
+      raise ArgumentError, 'Calendar name is missing' unless (name.length > 0) && (name.kind_of? String)
       @name = name
       @events = {}
     end
@@ -41,15 +40,15 @@ module RubyCal
     # expect p to be optional event params
     public
     def add_event(event)
-      raise ArgumentError, "add_event requires a RubyCal::Event object" unless event.instance_of? Event
+      raise ArgumentError, 'add_event requires a RubyCal::Event object' unless event.instance_of? Event
       @events[event.name] = @events[event.name] ? @events[event.name] << event : [event]
     end
 
     # events_with_name(name) – Returns events matching the given name.
       # Returning array because name is the separating value
-    public 
+    public
     def events_with_name(name)
-      raise NameError, "No events found with that name" unless @events[name]
+      raise NameError, 'No events found with that name' unless @events[name]
       @events[name]
     end
 
@@ -62,7 +61,7 @@ module RubyCal
         temp = bucket.select { |event| DATE_COMPARER.call(event.start_time, today) }
         result[name] = temp if temp.length > 0
       end
-      raise "No events found for today" unless result.length > 0
+      raise 'No events found for today' unless result.length > 0
       result
     end
 
@@ -87,7 +86,7 @@ module RubyCal
         temp = bucket.select { |event| WEEK_COMPARER.call(event.start_time, today) }
         result[name] = temp if temp.length > 0
       end
-      raise "No events found for this week" unless result.length > 0
+      raise 'No events found for this week' unless result.length > 0
       result
     end
 
@@ -113,7 +112,5 @@ module RubyCal
       @events.delete(name)
       prev_length
     end
-
   end
-  
 end

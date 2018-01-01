@@ -29,5 +29,4 @@ class TestLocation < Minitest::Test
     assert_equal(test_location.state, test_params[:state])
     assert_equal(test_location.zip, test_params[:zip])
   end
-
 end
