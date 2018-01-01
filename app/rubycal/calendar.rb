@@ -9,16 +9,9 @@ module RubyCal
   
   # Implementation
     # Done as per the requirements
-    # Failed attempts rescue with a false value
     # Names were chose for hashes, as specifications cite multiple all-event methods
       # To simplify removing multiple of a hash
-    # Arrays are used as buckets to allow quicker search/sort on the items
-    # Methods that simply modify return booleans for feedback
-  
-  # On the docket:
-    # Inserted items should probably be inserted with some form of binary insert
-    # Updating items will necessitate reordering the array to preserve order
-    # Specify which active_support modules i will need
+    # Arrays are used as buckets to support multiple events with same name
   
   DATE_COMPARER = Proc.new do |t1, t2|
     raise ArgumentError, "Invalid Time" unless (t1.instance_of? Time) && (t2.instance_of? Time)
