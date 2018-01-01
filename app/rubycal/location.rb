@@ -6,11 +6,6 @@ module RubyCal
   
   # Implementation
     # Done as per the requirements
-
-  # On the docket:
-    # Type check this data
-      # Zip should be parseable as a number
-      # Empty inputs are invalid
   
   # Future considerations?
     # Validate inputs completely, e.g. city should exist, state should be real

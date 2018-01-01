@@ -8,13 +8,7 @@ module RubyCal
     # Events must have an end time or be flagged as an all-day event
 
   # Implementation
-    # Instead of an all-day flag, I will use end_time as an optional
-    # If no end_time is provided, it is assumed that the event is all-day
-      # Thought is if I want to update time, less chance of forgetting the all-day flag
-
-  # On the docket:
-    # Clean up these long unless statements
-    # End time should not be before start time
+    # Done as per the requirements
 
   class Event
     attr_accessor :name, :start_time, :all_day, :end_time, :location
